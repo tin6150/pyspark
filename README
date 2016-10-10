@@ -1,0 +1,21 @@
+pyspark
+
+contain various code snipplet for spark using python
+trial code as taxonomy_reporter is revamped to use hadoop spark and SparkSQL
+
+----
+
+git init
+
+git config --global user.email "tin6150@gmail.com" 
+git config --global user.name tin
+git config --global credential.helper 'cache --timeout=3600'
+git config --global github.user   tin6150
+
+git add *
+git commit -m "first commit"
+git remote add origin https://github.com/tin6150/pyspark.git
+git push -u origin master
+
+
+
