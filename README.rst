@@ -1,15 +1,15 @@
-# Moved
-
-the bitbucket (t6 priv) repo is created after the creation date of this repo.
-there is one commit here in 2016.1109 (https://github.com/tin6150/pyspark/commit/522211356f77ad15ceaa3f508a42cf5aab1aab37), 
-hopefully is over there too.  
-
-----
 
 pyspark
+-------
 
-contain various code snipplet for spark using python
+This is the public facing repo.  It will not contain private IP data.
+
+contains various code snipplet for spark using python
 trial code as taxonomy_reporter is revamped to use hadoop spark and SparkSQL
+
+Plan is to code generic, non-IP code here with personal hobby time.
+Then if anything is usable later on, it maybe "forked" or migrated to private repo (eg in bitbucket).
+
 
 ----
 
