@@ -11,8 +11,8 @@ Plan is to code generic, non-IP code here with personal hobby time.
 Then if anything is usable later on, it maybe "forked" or migrated to private repo (eg in bitbucket).
 
 eg:: 
-node2trace.py, trace_load.py
-tba --> taxoTraceTbl.py
+	node2trace.py, trace_load.py
+	tba --> taxoTraceTbl.py
 
 
 
