@@ -1,15 +1,9 @@
-## #!/usr/lib/spark/bin/pyspark 
+## #!/usr/lib/spark/bin/spark-submit  
 
-## warning say to use spark-submit  spark_acc2taxid.py   
-## #!/usr/lib/spark/bin/spark-shell    # this load a scala shell...
+## #!/usr/lib/spark/bin/spark-shell    # this load a scala shell
 
-## spark_acc2taxid_3.py    this version does sql lookup one row at a time.  works, but slow.
-## spark_acc2taxid_4.py    this version use join on dataframe, should be done in ~5 min as per Victor Hong estimate
-## node2trace.py           renamed file, as this will now focus only in creating a table with full parent lineage 
-##                         ie, DW-style pre-computing the lineage tree.
-
+## node2trace.py           create taxonomy table, really wide, using dataframe
 ## trace_load.py	   load parquet stored by node2trace.py
-## 			   may eventually be added to join with acc_ver info
 
 
 from __future__         import print_function
@@ -26,16 +20,11 @@ def dummy_writeFileTest() :
 
 
 def load_trace_table() :
-        outfile = "/home/hoti1/pub/trace_load_1108.out"
-        #outfile = "/home/hoti1/pub/spark_acc2taxid_4.out"
+        outfile = "/home/bofh/pub/trace_load_1108.out"
         outFH = open( outfile, 'w' )
         #outFH.write( "Test output to file from spark\n" )
         ## http://stackoverflow.com/questions/24996302/setting-sparkcontext-for-pyspark 
-        ##spkCtx = SparkContext( 'local', 'tin_pyspark_0724_local' )
-        #spkCtx = SparkContext( appName='tin_pyspark_31gb' )
         spkCtx = SparkContext( appName='tin_pyspark_yarn_trace_load_1108' )
-        #print( "   *** hello world sparkContext created" )
-        #print( "   *** hello world sparkContext created", file = outFH )
 
         sqlContext = SQLContext(spkCtx)         # can only have one instance of SQLContext
         #tabABsqlCtx = SQLContext(spkCtx)       # a second delcaration will result in not so useful object
@@ -55,7 +44,9 @@ def load_trace_table() :
 
         #parquetFile = sqlContext.read.parquet("people.parquet")
         #parquetFile.registerTempTable("parquetFile");
-        trace_table = sqlContext.read.parquet("trace_table.parquet")
+        #trace_table = sqlContext.read.parquet("trace_table.parquet")
+        # above didn't work in c3po.  but stripping .parquet worked
+        trace_table = sqlContext.read.parquet("trace_table")
 
         trace_table.printSchema()
         trace_table.show()
@@ -71,6 +62,7 @@ def load_trace_table() :
         print( "   *** sqlResult: ***", file = outFH )
         myList = sqlResult.collect()            # need .collect() to consolidate result into "Row"
         print( "myList is: %s", myList )                        # [Row(_c0=1402066)]   # took about 20 sec (53sec if omit .show() after all the joins)
+        # run time on c3po with pe 16 and 16 GB e/a is also ~50 sec (w/ show).  
         print( "myList is: %s", myList, file = outFH )          # this works too! 
         print( "sqlResult is: %s", sqlResult )                  # sqlResult is: %s DataFrame[_c0: bigint]
         print( "sqlResult is: %s", sqlResult, file = outFH )
@@ -110,6 +102,113 @@ def load_trace_table() :
 
 
 
-
-
+# main of program
 load_trace_table()
+
+
+# sample output
+"""
+
+select output from sprk-pe16x16.o2635024
+
+
+17/02/18 23:35:31 INFO DAGScheduler: ResultStage 0 (parquet at NativeMethodAccessorImpl.java:-2) finished in 3.161 s
+17/02/18 23:35:31 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool 
+17/02/18 23:35:31 INFO DAGScheduler: Job 0 finished: parquet at NativeMethodAccessorImpl.java:-2, took 3.427512 s
+
+root
+ |-- taxid_T0: string (nullable = true)
+ |-- name_T0: string (nullable = true)
+ |-- parent_T0: string (nullable = true)
+ |-- rank_T0: string (nullable = true)
+ |-- taxid_T1: string (nullable = true)
+ |-- name_T1: string (nullable = true)
+ |-- parent_T1: string (nullable = true)
+ |-- rank_T1: string (nullable = true)
+ |-- taxid_T2: string (nullable = true)
+ |-- name_T2: string (nullable = true)
+ |-- parent_T2: string (nullable = true)
+ |-- rank_T2: string (nullable = true)
+ |-- taxid_T3: string (nullable = true)
+ |-- name_T3: string (nullable = true)
+ |-- parent_T3: string (nullable = true)
+ |-- rank_T3: string (nullable = true)
+ |-- taxid_T4: string (nullable = true)
+ |-- name_T4: string (nullable = true)
+ |-- parent_T4: string (nullable = true)
+ |-- rank_T4: string (nullable = true)
+ |-- taxid_T5: string (nullable = true)
+ |-- name_T5: string (nullable = true)
+ |-- parent_T5: string (nullable = true)
+ |-- rank_T5: string (nullable = true)
+ |-- taxid_T6: string (nullable = true)
+ |-- name_T6: string (nullable = true)
+ |-- parent_T6: string (nullable = true)
+ |-- rank_T6: string (nullable = true)
+ |-- taxid_T7: string (nullable = true)
+ |-- name_T7: string (nullable = true)
+ |-- parent_T7: string (nullable = true)
+ |-- rank_T7: string (nullable = true)
+ |-- taxid_T8: string (nullable = true)
+ |-- name_T8: string (nullable = true)
+ |-- parent_T8: string (nullable = true)
+ |-- rank_T8: string (nullable = true)
+ |-- taxid_T9: string (nullable = true)
+ |-- name_T9: string (nullable = true)
+ |-- parent_T9: string (nullable = true)
+ |-- rank_T9: string (nullable = true)
+ |-- taxid_T10: string (nullable = true)
+ |-- name_T10: string (nullable = true)
+ |-- parent_T10: string (nullable = true)
+ |-- rank_T10: string (nullable = true)
+ |-- taxid_T11: string (nullable = true)
+ |-- name_T11: string (nullable = true)
+ |-- parent_T11: string (nullable = true)
+ |-- rank_T11: string (nullable = true)
+ |-- taxid_T12: string (nullable = true)
+ |-- name_T12: string (nullable = true)
+ |-- parent_T12: string (nullable = true)
+ |-- rank_T12: string (nullable = true)
+ |-- taxid_T13: string (nullable = true)
+ |-- name_T13: string (nullable = true)
+ |-- parent_T13: string (nullable = true)
+ |-- rank_T13: string (nullable = true)
+ |-- taxid_T14: string (nullable = true)
+ |-- name_T14: string (nullable = true)
+ |-- parent_T14: string (nullable = true)
+ |-- rank_T14: string (nullable = true)
+
++--------+--------------------+---------+-------+--------+--------------------+---------+-------+--------+----------+---------+-------+--------+-----------+---------+-----------+--------+-------------+---------+--------+--------+----------+---------+-------+--------+--------+---------+--------+--------+---------+---------+-------+--------+---------+---------+---------+--------+------------+---------+-------+---------+-----------+----------+--------+---------+----------+----------+--------+---------+-------------+----------+--------+---------+---------+----------+--------+---------+-----------+----------+--------+
+|taxid_T0|             name_T0|parent_T0|rank_T0|taxid_T1|             name_T1|parent_T1|rank_T1|taxid_T2|   name_T2|parent_T2|rank_T2|taxid_T3|    name_T3|parent_T3|    rank_T3|taxid_T4|      name_T4|parent_T4| rank_T4|taxid_T5|   name_T5|parent_T5|rank_T5|taxid_T6| name_T6|parent_T6| rank_T6|taxid_T7|  name_T7|parent_T7|rank_T7|taxid_T8|  name_T8|parent_T8|  rank_T8|taxid_T9|     name_T9|parent_T9|rank_T9|taxid_T10|   name_T10|parent_T10|rank_T10|taxid_T11|  name_T11|parent_T11|rank_T11|taxid_T12|     name_T12|parent_T12|rank_T12|taxid_T13| name_T13|parent_T13|rank_T13|taxid_T14|   name_T14|parent_T14|rank_T14|
++--------+--------------------+---------+-------+--------+--------------------+---------+-------+--------+----------+---------+-------+--------+-----------+---------+-----------+--------+-------------+---------+--------+--------+----------+---------+-------+--------+--------+---------+--------+--------+---------+---------+-------+--------+---------+---------+---------+--------+------------+---------+-------+---------+-----------+----------+--------+---------+----------+----------+--------+---------+-------------+----------+--------+---------+---------+----------+--------+---------+-----------+----------+--------+
+|   84300|         Bairdia sp.|    84299|species|   84299|             Bairdia|    84298|  genus|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  320506|Neonesidea haikan...|   221390|species|  221390|          Neonesidea|    84298|  genus|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  221395|Neonesidea sp. B-...|   221390|species|  221390|          Neonesidea|    84298|  genus|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  221394|Neonesidea sp. A-...|   221390|species|  221390|          Neonesidea|    84298|  genus|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1684349|Bairdiidae sp. 59...|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1684347|Bairdiidae sp. 4 ...|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1684346|Bairdiidae sp. 14...|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1642546|Bairdiidae sp. NVS25|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1642549|Bairdiidae sp. NVS27|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1684350|Bairdiidae sp. 60...|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1684348|Bairdiidae sp. 5 ...|  1642545|species| 1642545|Unclassified Bair...|    84298|no rank|   84298|Bairdiidae|    84320| family|   84320|Bairdioidea|    84319|superfamily|   84319|Bairdiocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  231262|Cyprididae sp. JM...|   231261|species|  231261|unclassified Cypr...|    43954|no rank|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1646078|Cyprididae sp. BO...|   231261|species|  231261|unclassified Cypr...|    43954|no rank|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  288915|Cyprididae sp. CH...|   231261|species|  231261|unclassified Cypr...|    43954|no rank|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1620910|Cyprididae gen. s...|   231261|species|  231261|unclassified Cypr...|    43954|no rank|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1775588|Ilyodromus sp. RJ...|  1775584|species| 1775584|          Ilyodromus|    43954|  genus|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1775587|Ilyodromus sp. RJ...|  1775584|species| 1775584|          Ilyodromus|    43954|  genus|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1775586|Ilyodromus sp. RJ...|  1775584|species| 1775584|          Ilyodromus|    43954|  genus|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+| 1646103| Notodromas sp. BIO1|   399044|species|  399044|          Notodromas|    43954|  genus|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
+|  399045|  Notodromas monacha|   399044|species|  399044|          Notodromas|    43954|  genus|   43954|Cyprididae|    84329| family|   84329|Cypridoidea|    84328|superfamily|   84328|Cypridocopina|    84318|suborder|   84318|Podocopida|    43953|  order|   43953|Podocopa|     6670|subclass|    6670|Ostracoda|     6657|  class|    6657|Crustacea|   197562|subphylum|  197562|Pancrustacea|   197563|no rank|   197563|Mandibulata|      6656| no rank|     6656|Arthropoda|     88770|  phylum|    88770|Panarthropoda|   1206794| no rank|  1206794|Ecdysozoa|     33317| no rank|    33317|Protostomia|     33213| no rank|
++--------+--------------------+---------+-------+--------+--------------------+---------+-------+--------+----------+---------+-------+--------+-----------+---------+-----------+--------+-------------+---------+--------+--------+----------+---------+-------+--------+--------+---------+--------+--------+---------+---------+-------+--------+---------+---------+---------+--------+------------+---------+-------+---------+-----------+----------+--------+---------+----------+----------+--------+---------+-------------+----------+--------+---------+---------+----------+--------+---------+-----------+----------+--------+
+only showing top 20 rows
+
+  * (*) * running SQL Query COUNT... 
+sqlResult is: %s DataFrame[_c0: bigint]
+  * (*) * running SQL Query SELECT... 
+
+myList is: %s [Row(taxid_T0=u'287144', name_T0=u'Influenza A virus (A/Taiwan/2040/2003(H3N2))', parent_T0=u'119210', rank_T0=u'no rank', taxid_T1=u'119210', name_T1=u'H3N2 subtype', parent_T1=u'11320', rank_T1=u'no rank', taxid_T2=u'11320', name_T2=u'Influenza A virus', parent_T2=u'197911', rank_T2=u'species', taxid_T3=u'197911', name_T3=u'Influenzavirus A', parent_T3=u'11308', rank_T3=u'genus', taxid_T4=u'11308', name_T4=u'Orthomyxoviridae', parent_T4=u'35301', rank_T4=u'family', taxid_T5=u'35301', name_T5=u'ssRNA negative-strand viruses', parent_T5=u'439488', rank_T5=u'no rank', taxid_T6=u'439488', name_T6=u'ssRNA viruses', parent_T6=u'10239', rank_T6=u'no rank', taxid_T7=u'10239', name_T7=u'Viruses', parent_T7=u'1', rank_T7=u'superkingdom', taxid_T8=u'1', name_T8=u'root', parent_T8=u'1', rank_T8=u'no rank', taxid_T9=u'1', name_T9=u'root', parent_T9=u'1', rank_T9=u'no rank', taxid_T10=u'1', name_T10=u'root', parent_T10=u'1', rank_T10=u'no rank', taxid_T11=u'1', name_T11=u'root', parent_T11=u'1', rank_T11=u'no rank', taxid_T12=u'1', name_T12=u'root', parent_T12=u'1', rank_T12=u'no rank', taxid_T13=u'1', name_T13=u'root', parent_T13=u'1', rank_T13=u'no rank', taxid_T14=u'1', name_T14=u'root', parent_T14=u'1', rank_T14=u'no rank')]
+sqlResult is: %s DataFrame[taxid_T0: string, name_T0: string, parent_T0: string, rank_T0: string, taxid_T1: string, name_T1: string, parent_T1: string, rank_T1: string, taxid_T2: string, name_T2: string, parent_T2: string, rank_T2: string, taxid_T3: string, name_T3: string, parent_T3: string, rank_T3: string, taxid_T4: string, name_T4: string, parent_T4: string, rank_T4: string, taxid_T5: string, name_T5: string, parent_T5: string, rank_T5: string, taxid_T6: string, name_T6: string, parent_T6: string, rank_T6: string, taxid_T7: string, name_T7: string, parent_T7: string, rank_T7: string, taxid_T8: string, name_T8: string, parent_T8: string, rank_T8: string, taxid_T9: string, name_T9: string, parent_T9: string, rank_T9: string, taxid_T10: string, name_T10: string, parent_T10: string, rank_T10: string, taxid_T11: string, name_T11: string, parent_T11: string, rank_T11: string, taxid_T12: string, name_T12: string, parent_T12: string, rank_T12: string, taxid_T13: string, name_T13: string, parent_T13: string, rank_T13: string, taxid_T14: string, name_T14: string, parent_T14: string, rank_T14: string]
+   *** good bye world !!
+"""
